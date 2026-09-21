@@ -10,7 +10,11 @@ from grader_contracts.numpy_tasks import (
 
 def sum_prod(data: MatrixVectorBatchInput) -> np.ndarray:
     matrices, vectors = data.matrices, data.vectors
-    raise NotImplementedError  # TODO
+    if len(matrices) != len(vectors) or len(matrices) == 0:
+        raise ValueError;
+    sum = np.zeros
+    for i in range(len(matrices))
+
 
 
 def binarize(data: BinarizeInput) -> np.ndarray:

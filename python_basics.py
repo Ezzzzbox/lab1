@@ -133,7 +133,7 @@ def mse(data: VectorPairInput) -> float:
     if len(predicted) == 0:
         raise ValueError()
     for i in range(len(predicted)):
-        mse += (predicted[i] + expected[i]) ** 2
+        mse += (predicted[i] - expected[i]) ** 2
     mse = mse / len(predicted)
     return mse
 
@@ -144,7 +144,7 @@ class test_mse(unittest.TestCase):
         with self.assertRaises(ValueError):
             mse(pair)
 
-    def test_zeromse(self):
+    def test_zero_mse(self):
         pair = VectorPairInput([1, 2, 3], [1, 2, 3])
         res = mse(pair)
         self.assertEqual(res, 0)
@@ -158,10 +158,11 @@ class test_mse(unittest.TestCase):
 def prime_factorization(data: PositiveIntegerInput) -> str:
     number = data.value
     res = ""
-    for i in range(number + 1):
+    for i in range(2, number + 1):
         count = 0
         while number % i == 0:
             count += 1
+            number = number // i
         if count > 1:
             res += "(" + str(i) + "**" + str(count) + ")"
         if count == 1:
@@ -169,11 +170,109 @@ def prime_factorization(data: PositiveIntegerInput) -> str:
     return res
 
 
+class test_prime_factorization(unittest.TestCase):
+    def test_zero(self):
+        num = PositiveIntegerInput(0)
+        res = prime_factorization(num)
+        self.assertEqual(res, "")
+
+    def test_simple(self):
+        num = PositiveIntegerInput(100)
+        res = prime_factorization(num)
+        self.assertEqual(res, "(2**2)(5**2)")
+
+    def tet_prime_number(self):
+        num = PositiveIntegerInput(219)
+        res = prime_factorization(num)
+        self.assertEqual(res, "(217)")
+
+
 def pyramid(data: PositiveIntegerInput) -> int | str:
     cube_count = data.value
-    raise NotImplementedError  # TODO
+    count = 0
+    i = 0
+    while count < cube_count:
+        i += 1
+        count += i * i
+    if count == cube_count:
+        return "k"
+    return "It is impossible"
+
+
+class test_pyramid(unittest.TestCase):
+    def test_one(self):
+        num = PositiveIntegerInput(1)
+        res = pyramid(num)
+        self.assertEqual(res, "k")
+
+    def test_multiple(self):
+        num = 0
+        err_nums = []
+        for i in range(1, 100):
+            num += i * i
+            inp_num = PositiveIntegerInput(num)
+            res = pyramid(inp_num)
+            if res != "k":
+                err_nums.append(i)
+        self.assertEqual([], err_nums)
+
+    def test_incorrect_simle(self):
+        num = PositiveIntegerInput(7)
+        res = pyramid(num)
+        self.assertEqual(res, "It is impossible")
+
+    def test_incorrect(self):
+        num = PositiveIntegerInput(500)
+        res = pyramid(num)
+        self.assertEqual(res, "It is impossible")
 
 
 def is_balanced_number(data: PositiveIntegerInput) -> bool:
     number = data.value
-    raise NotImplementedError  # TODO
+    digits = []
+    while number != 0:
+        digits.append(number % 10)
+        number = number // 10
+    left = 0
+    right = 0
+    is_even_len = len(digits) % 2 == 0
+    # breakpoint()
+    if is_even_len:
+        for i in range(len(digits) // 2 - 1):
+            left += digits[i]
+        for i in range(len(digits) // 2 + 1, len(digits)):
+            right += digits[i]
+    else:
+        for i in range(len(digits) // 2):
+            left += digits[i]
+        for i in range(len(digits) // 2 + 1, len(digits)):
+            right += digits[i]
+    # breakpoint()
+    return left == right
+
+
+class test_is_balanced_number(unittest.TestCase):
+    def test_zero(self):
+        num = PositiveIntegerInput(0)
+        res = is_balanced_number(num)
+        self.assertTrue(res)  # а что делать с цифрами?
+
+    def test_balanced_not_even_len(self):
+        num = PositiveIntegerInput(123404321)
+        res = is_balanced_number(num)
+        self.assertTrue(res)
+
+    def test_balanced_even_len(self):
+        num = PositiveIntegerInput(1234004321)
+        res = is_balanced_number(num)
+        self.assertTrue(res)
+
+    def test_unbalanced_not_even_len(self):
+        num = PositiveIntegerInput(123406789)
+        res = is_balanced_number(num)
+        self.assertFalse(res)
+
+    def test_unbalanced_even_len(self):
+        num = PositiveIntegerInput(1234006789)
+        res = is_balanced_number(num)
+        self.assertFalse(res)
