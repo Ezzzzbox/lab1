@@ -62,12 +62,65 @@ def compare(mtrxs, vecs, actual):
 
 def binarize(data: BinarizeInput) -> np.ndarray:
     matrix, threshold = data.matrix, data.threshold
-    raise NotImplementedError  # TODO
+    if len(matrix.shape) == 1:
+        return binarize_vector(matrix, threshold)
+    rows = matrix.shape[0]
+    columns = matrix.shape[1]
+    for i in range(rows):
+        for j in range(columns):
+            if matrix[i, j] > threshold:
+                matrix[i, j] = 1
+            else:
+                matrix[i, j] = 0
+    return matrix
+
+
+def binarize_vector(vector, threshold) -> np.ndarray:
+    for i in range(len(vector)):
+        if vector[i] > threshold:
+            vector[i] = 1
+        else:
+            vector[i] = 0
+    return vector
+
+
+class test_binarize(unittest.TestCase):
+    def compare(self, mtrx, tr, actual):
+        data = BinarizeInput(mtrx, tr)
+        res = binarize(data)
+        return np.array_equal(actual, res)
+
+    def test_vector(self):
+        mtrx = np.array([1, 2, 3, 4, 5, 6])
+        actual = np.array([0, 0, 0, 1, 1, 1])
+        self.assertTrue(self.compare(mtrx, 3, actual))
+
+    def test_matrix(self):
+        mtrx = np.array([[1, 2, 3], [4, 5, 6]])
+        actual = np.array([[0, 0, 0], [0, 1, 1]])
+        self.assertTrue(self.compare(mtrx, 4.5, actual))
+
+    def test_square_matrix(self):
+        mtrx = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+        actual = np.array([[0, 0, 0], [0, 1, 1], [1, 1, 1]])
+        self.assertTrue(self.compare(mtrx, 4.5, actual))
 
 
 def unique_rows(data: MatrixInput) -> list[list[float]]:
     matrix = data.matrix
-    raise NotImplementedError  # TODO
+    if len(matrix.shape) == 1:
+        return unique_rows_vector(matrix)
+    unique_rows = []
+    # хуйня потому что надо как то по строчке проходить иначе запутатться легко
+    for i in range(matrix.shape[0]):
+        unique_rows.append(set())
+        for j in range(matrix.shape[1]):
+    
+def unique_rows_vector(vector):
+    res = []
+    for i in range(len(vector)):
+        res.append([vector[i]])
+    return res
 
 
 def unique_columns(data: MatrixInput) -> list[list[float]]:
