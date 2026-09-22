@@ -1,7 +1,7 @@
 """Заготовки задач на NumPy."""
 
 import numpy as np
-
+import matplotlib.pyplot as plt
 import unittest
 
 from grader_contracts.numpy_tasks import (
@@ -111,11 +111,25 @@ def unique_rows(data: MatrixInput) -> list[list[float]]:
     if len(matrix.shape) == 1:
         return unique_rows_vector(matrix)
     unique_rows = []
-    # хуйня потому что надо как то по строчке проходить иначе запутатться легко
     for i in range(matrix.shape[0]):
-        unique_rows.append(set())
-        for j in range(matrix.shape[1]):
-    
+        unique_rows.append(unique_list(matrix[i]))
+    return unique_rows
+
+
+def unique_list(list) -> list[float]:
+    dig_repeat = dict()
+    for i in range(len(list)):
+        if dig_repeat.get(list[i]) is None:
+            dig_repeat[list[i]] = 1
+        else:
+            dig_repeat[list[i]] += 1
+    res = []
+    for num, repeat in dig_repeat.items():
+        if repeat == 1:
+            res.append(num)
+    return res
+
+
 def unique_rows_vector(vector):
     res = []
     for i in range(len(vector)):
@@ -125,7 +139,90 @@ def unique_rows_vector(vector):
 
 def unique_columns(data: MatrixInput) -> list[list[float]]:
     matrix = data.matrix
-    raise NotImplementedError  # TODO
+    if len(matrix.shape) == 1:
+        return [unique_list(matrix)]
+    res = []
+    for j in range(matrix.shape[1]):
+        res.append(unique_list(matrix[:, j]))
+    return res
+
+
+class test_unique_rows(unittest.TestCase):
+    def run_test(self, mtrx, expect):
+        data = MatrixInput(mtrx)
+        return self.compare_lists(unique_rows(data), expect)
+
+    def compare_lists(self, mtrx, expect):
+        if len(mtrx) != len(expect):
+            return False
+        for i in range(len(mtrx)):
+            if len(mtrx[i]) != len(expect[i]):
+                return False
+            set_mtrx = set(mtrx[i])
+            for num in expect[i]:
+                set_mtrx.add(num)
+            if len(set_mtrx) > len(mtrx[i]):
+                return False
+        return True
+
+    def test_vector(self):
+        vec = np.array([1, 2, 3, 3, 4, 4])
+        expect = [[1], [2], [3], [3], [4], [4]]
+        self.assertTrue(self.run_test(vec, expect))
+
+    def test_4x4(self):
+        mtrx = np.array([[1, 2, 3, 4], [1, 1, 2, 2], [-5, -5, 5, 1], [0, 1, 3, 0]])
+        expect = [[1, 2, 3, 4], [], [5, 1], [1, 3]]
+        self.assertTrue(self.run_test(mtrx, expect))
+
+    def test_4x2(self):
+        mtrx = np.array([[1, 2, 3, 4], [1, 1, 0, 2]])
+        expect = [[1, 2, 3, 4], [0, 2]]
+        self.assertTrue(self.run_test(mtrx, expect))
+
+    def test_2x4(self):
+        mtrx = np.array([[1, 2], [1.3, 1.3], [0, 0], [-1, -1]])
+        expect = [[1.0, 2.0], [], [], []]
+        self.assertTrue(self.run_test(mtrx, expect))
+
+
+class test_unique_columns(unittest.TestCase):
+    def run_test(self, mtrx, expect):
+        data = MatrixInput(mtrx)
+        return self.compare_lists(unique_columns(data), expect)
+
+    def compare_lists(self, mtrx, expect):
+        if len(mtrx) != len(expect):
+            return False
+        for i in range(len(mtrx)):
+            if len(mtrx[i]) != len(expect[i]):
+                return False
+            set_mtrx = set(mtrx[i])
+            for num in expect[i]:
+                set_mtrx.add(num)
+            if len(set_mtrx) > len(mtrx[i]):
+                return False
+        return True
+
+    def test_vector(self):
+        vec = np.array([1, 2, 3, 3, 4, 4])
+        expect = [[1, 2]]
+        self.assertTrue(self.run_test(vec, expect))
+
+    def test_4x4(self):
+        mtrx = np.array([[1, 2, 3, 4], [1, 1, 2, 2], [-5, -5, 5, 1], [0, 1, 3, 0]])
+        expect = [[-5, 0], [2, -5], [2, 5], [4, 2, 1, 0]]
+        self.assertTrue(self.run_test(mtrx, expect))
+
+    def test_4x2(self):
+        mtrx = np.array([[1, 2, 3, 4], [1, 1, 0, 2]])
+        expect = [[], [2, 1], [3, 0], [4, 2]]
+        self.assertTrue(self.run_test(mtrx, expect))
+
+    def test_2x4(self):
+        mtrx = np.array([[1, 2], [0, 1.3], [0, 1.3], [-1, -1]])
+        expect = [[1, -1], [2, -1]]
+        self.assertTrue(self.run_test(mtrx, expect))
 
 
 def matrix_statistics(data: RandomMatrixInput) -> MatrixStatistics:
@@ -136,7 +233,33 @@ def matrix_statistics(data: RandomMatrixInput) -> MatrixStatistics:
         data.std,
         data.seed,
     )
-    raise NotImplementedError  # TODO
+    np.random.seed(seed)
+    mtrx = np.random.normal(mean, std, (rows, columns))
+    rows_avg = [sum(row) / len(row) for row in mtrx]
+    columns_avg = [sum(clm) / len(clm) for clm in mtrx[:,]]
+    rows_dis = []
+    columns_dis = []
+    breakpoint()
+    for i in range(len(mtrx)):
+        rows_dis.append(count_dispersion(mtrx[i], rows_avg[i]))
+    for j in range(mtrx.shape[1]):
+        columns_dis.append(count_dispersion(mtrx[:, j], columns_avg[j]))
+    return MatrixStatistics(mtrx, rows_avg, columns_avg, rows_dis, columns_dis)
+
+
+def draw_histogram(matrix):
+    plt.hist(matrix)
+    plt.show()
+
+
+temp = RandomMatrixInput(10, 10, 5, 0.5, 1)
+draw_histogram(matrix_statistics(temp).matrix)
+
+
+def count_dispersion(ls, avg):
+    mean_square = sum([i**2 for i in ls]) / len(ls)
+    avg_square = avg * avg
+    return mean_square - avg_square
 
 
 def chess(data: ChessInput) -> np.ndarray:
