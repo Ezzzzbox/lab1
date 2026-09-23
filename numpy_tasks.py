@@ -1,7 +1,8 @@
 """Заготовки задач на NumPy."""
 
 import numpy as np
-import matplotlib.pyplot as plt
+
+# import matplotlib.pyplot as plt
 import unittest
 
 from grader_contracts.numpy_tasks import (
@@ -252,9 +253,11 @@ def count_dispersion(ls, avg):
     return mean_square - avg_square
 
 
+"""
 def draw_histogram(matrix):
     plt.hist(matrix)
     plt.show()
+"""
 
 
 def chess(data: ChessInput) -> np.ndarray:
