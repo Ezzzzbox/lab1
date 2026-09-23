@@ -239,21 +239,11 @@ def matrix_statistics(data: RandomMatrixInput) -> MatrixStatistics:
     columns_avg = [sum(clm) / len(clm) for clm in mtrx[:,]]
     rows_dis = []
     columns_dis = []
-    breakpoint()
     for i in range(len(mtrx)):
         rows_dis.append(count_dispersion(mtrx[i], rows_avg[i]))
     for j in range(mtrx.shape[1]):
         columns_dis.append(count_dispersion(mtrx[:, j], columns_avg[j]))
     return MatrixStatistics(mtrx, rows_avg, columns_avg, rows_dis, columns_dis)
-
-
-def draw_histogram(matrix):
-    plt.hist(matrix)
-    plt.show()
-
-
-temp = RandomMatrixInput(10, 10, 5, 0.5, 1)
-draw_histogram(matrix_statistics(temp).matrix)
 
 
 def count_dispersion(ls, avg):
@@ -262,28 +252,164 @@ def count_dispersion(ls, avg):
     return mean_square - avg_square
 
 
+def draw_histogram(matrix):
+    plt.hist(matrix)
+    plt.show()
+
+
 def chess(data: ChessInput) -> np.ndarray:
     rows, columns, first, second = data.rows, data.columns, data.first, data.second
-    raise NotImplementedError  # TODO
+    chessboard = np.zeros((rows, columns))
+    for i in range(rows):
+        for j in range(columns):
+            if (i + j) % 2 == 0:
+                chessboard[i, j] = first
+            else:
+                chessboard[i, j] = second
+    return chessboard
+
+
+class test_chess(unittest.TestCase):
+    def run_test(self, rows, clms, first, second):
+        chessboard = chess(ChessInput(rows, clms, first, second))
+        if len(chessboard) != rows:
+            return False
+        if chessboard.shape[1] != clms:
+            return False
+        for i in range(rows):
+            for j in range(clms):
+                if (i + j) % 2 == 0 and chessboard[i, j] == second:
+                    return False
+                elif (i + j) % 2 == 1 and chessboard[i, j] == first:
+                    return False
+        return True
+
+    def test_0x0(self):
+        self.assertTrue(self.run_test(0, 0, 5, 8))
+
+    def test_1x1(self):
+        self.assertTrue(self.run_test(1, 1, 5, 8))
+
+    def test_1x2(self):
+        self.assertTrue(self.run_test(1, 2, 5, 8))
+
+    def test_2x2(self):
+        self.assertTrue(self.run_test(2, 2, 5, 8))
+
+    def test_3x2(self):
+        self.assertTrue(self.run_test(3, 2, 5, 8))
+
+    def test_7x7(self):
+        self.assertTrue(self.run_test(1, 2, 5, 8))
 
 
 def draw_rectangle(data: RectangleInput) -> np.ndarray:
     width, height = data.width, data.height
     image_height, image_width = data.image_height, data.image_width
     shape_color, background_color = data.shape_color, data.background_color
-    raise NotImplementedError  # TODO
+    img = make_rgb_img(image_height, image_width, background_color)
+    start = [image_height // 2 - height // 2, image_width // 2 - width // 2]
+    for i in range(width):
+        img[start[0], start[1] + i] = shape_color
+        img[start[0] + height - 1, start[1] + i] = shape_color
+    for j in range(height):
+        img[start[0] + j, start[1]] = shape_color
+        img[start[0] + j, start[1] + width - 1] = shape_color
+    return img
+
+
+def make_rgb_img(height, width, background_color):
+    img = np.zeros((height, width, 3))
+    for i in range(height):
+        for j in range(width):
+            img[i, j] = background_color
+    return img
+
+
+"""
+class test_draw_rectangle(unittest.TestCase):
+    def test_visual(self):
+        data = RectangleInput(30, 30, 100, 100, (255, 0, 0), (120, 120, 120))
+        img = draw_rectangle(data)
+        plt.imshow(img)
+        plt.show()
+        self.assertTrue(True)
+"""
 
 
 def draw_ellipse(data: EllipseInput) -> np.ndarray:
     semi_axis_x, semi_axis_y = data.semi_axis_x, data.semi_axis_y
     image_height, image_width = data.image_height, data.image_width
     shape_color, background_color = data.shape_color, data.background_color
-    raise NotImplementedError  # TODO
+    img = make_rgb_img(image_height, image_width, background_color)
+    img_center = (image_height // 2, image_width // 2)
+    for i in range(image_height):
+        for j in range(image_width):
+            if (i - img_center[0]) ** 2 / semi_axis_y**2 + (
+                j - img_center[1]
+            ) ** 2 / semi_axis_x**2 <= 1:
+                img[i, j] = shape_color
+    return img
+
+
+"""
+class test_draw_ellipse(unittest.TestCase):
+    def test_visual(self):
+        data = EllipseInput(10, 5, 100, 100, (120, 120, 120), (0, 0, 0))
+        img = draw_ellipse(data)
+        plt.imshow(img)
+        plt.show()
+        self.assertTrue(True)
+"""
 
 
 def analyze_time_series(data: TimeSeriesInput) -> TimeSeriesStatistics:
     values, window = data.values, data.window
-    raise NotImplementedError  # TODO
+    math_expect = sum(values) / len(values)
+    avg_squares = sum([i**2 for i in values]) / len(values)
+    dispersion = avg_squares - math_expect**2
+    square_deviation = dispersion**0.5
+    loc_maxs = []
+    loc_mins = []
+    for i in range(1, len(values) - 1):
+        if values[i] > values[i - 1] and values[i] > values[i + 1]:
+            loc_maxs.append(i)
+        if values[i] < values[i - 1] and values[i] < values[i + 1]:
+            loc_mins.append(i)
+    slide_avg = []
+    # breakpoint()
+    for i in range(len(values) - window + 1):
+        slide_avg.append(sum(values[i : window + i]) / window)
+    res = TimeSeriesStatistics(
+        math_expect, dispersion, square_deviation, loc_maxs, loc_mins, slide_avg
+    )
+    return res
+
+
+class test_analyze_time_series(unittest.TestCase):
+    def run_test(self, res, expect):
+        # breakpoint()
+        if res.mean - expect.mean > 0.01:
+            return False
+        if res.variance - expect.variance > 0.01:
+            return False
+        if res.std - expect.std > 0.01:
+            return False
+        if not np.array_equal(res.local_maxima_indices, expect.local_maxima_indices):
+            return False
+        if not np.array_equal(res.local_minima_indices, expect.local_minima_indices):
+            return False
+        if not np.array_equal(res.moving_average, expect.moving_average):
+            return False
+        return True
+
+    def test_simple(self):
+        data = TimeSeriesInput([1, 2, 3, 4, 5, 6], 2)
+        res = analyze_time_series(data)
+        expect = TimeSeriesStatistics(
+            3.5, 2.917, 1.708, [], [], [1.5, 2.5, 3.5, 4.5, 5.5]
+        )
+        self.assertTrue(self.run_test(res, expect))
 
 
 def one_hot(data: OneHotInput) -> np.ndarray:
