@@ -414,4 +414,83 @@ class test_analyze_time_series(unittest.TestCase):
 
 def one_hot(data: OneHotInput) -> np.ndarray:
     labels, class_count = data.labels, data.class_count
-    raise NotImplementedError  # TODO
+    if len(labels) == 0:
+        return [[]]
+    if class_count is None:
+        class_count = max(labels) + 1
+    encode_mtrx = np.zeros((len(labels), class_count))
+    for i in range(len(labels)):
+        encode_mtrx[i, labels[i]] = 1
+    return encode_mtrx
+
+
+class test_one_hot(unittest.TestCase):
+    def test_0x0(self):
+        res = one_hot(OneHotInput([]))
+        expect = [[]]
+        self.assertTrue(np.array_equal(res, expect))
+
+    def test_1x1(self):
+        res = one_hot(OneHotInput([0]))
+        expect = [[1]]
+        self.assertTrue(np.array_equal(res, expect))
+
+    def test_2x2(self):
+        res = one_hot(OneHotInput([0, 1]))
+        expect = [[1, 0], [0, 1]]
+        self.assertTrue(np.array_equal(res, expect))
+
+    def test_3x2(self):
+        res = one_hot(OneHotInput([0, 0, 1]))
+        expect = [[1, 0], [1, 0], [0, 1]]
+        self.assertTrue(np.array_equal(res, expect))
+
+    def test_3x3(self):
+        res = one_hot(OneHotInput([1, 1, 2]))
+        expect = [[0, 1, 0], [0, 1, 0], [0, 0, 1]]
+        self.assertTrue(np.array_equal(res, expect))
+
+    def test_4x3(self):
+        res = one_hot(OneHotInput([0, 1, 2, 2]))
+        expect = [[1, 0, 0], [0, 1, 0], [0, 0, 1], [0, 0, 1]]
+        self.assertTrue(np.array_equal(res, expect))
+
+    def test_4x4(self):
+        res = one_hot(OneHotInput([0, 2, 3, 0]))
+        expect = [[1, 0, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1], [1, 0, 0, 0]]
+        self.assertTrue(np.array_equal(res, expect))
+
+    def test_0x0_count(self):
+        res = one_hot(OneHotInput([], 0))
+        expect = [[]]
+        self.assertTrue(np.array_equal(res, expect))
+
+    def test_1x1_count(self):
+        res = one_hot(OneHotInput([0], 1))
+        expect = [[1]]
+        self.assertTrue(np.array_equal(res, expect))
+
+    def test_2x2_count(self):
+        res = one_hot(OneHotInput([0, 1], 2))
+        expect = [[1, 0], [0, 1]]
+        self.assertTrue(np.array_equal(res, expect))
+
+    def test_3x2_count(self):
+        res = one_hot(OneHotInput([0, 0, 1], 2))
+        expect = [[1, 0], [1, 0], [0, 1]]
+        self.assertTrue(np.array_equal(res, expect))
+
+    def test_3x3_count(self):
+        res = one_hot(OneHotInput([1, 1, 2], 3))
+        expect = [[0, 1, 0], [0, 1, 0], [0, 0, 1]]
+        self.assertTrue(np.array_equal(res, expect))
+
+    def test_4x3_count(self):
+        res = one_hot(OneHotInput([0, 1, 2, 2], 3))
+        expect = [[1, 0, 0], [0, 1, 0], [0, 0, 1], [0, 0, 1]]
+        self.assertTrue(np.array_equal(res, expect))
+
+    def test_4x4_count(self):
+        res = one_hot(OneHotInput([0, 2, 3, 0], 4))
+        expect = [[1, 0, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1], [1, 0, 0, 0]]
+        self.assertTrue(np.array_equal(res, expect))
