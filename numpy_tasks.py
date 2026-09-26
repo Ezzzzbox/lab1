@@ -157,20 +157,6 @@ def draw_ellipse(data: EllipseInput) -> np.ndarray:
     y0 = (image_height - 1) / 2
     x0 = (image_width - 1) / 2
 
-    # у четных там центр получается между поэтому обе закрасил
-    if semi_axis_x == 0:
-        for i in range(image_width):
-            img[i, int(y0)] = shape_color
-            if int(y0) != y0:
-                img[i, int(y0 + 1)] = shape_color
-        return img
-    if semi_axis_y == 0:
-        for j in range(image_height):
-            img[int(x0), j] = shape_color
-            if int(x0) != x0:
-                img[int(x0 + 1), j] = shape_color
-        return img
-
     for i in range(image_height):
         for j in range(image_width):
             y_part = (i - y0) / semi_axis_y
