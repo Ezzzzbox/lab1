@@ -152,6 +152,24 @@ def draw_ellipse(data: EllipseInput) -> np.ndarray:
     semi_axis_x, semi_axis_y = data.semi_axis_x, data.semi_axis_y
     image_height, image_width = data.image_height, data.image_width
     shape_color, background_color = data.shape_color, data.background_color
+
+    image = np.full((image_height, image_width, 3), background_color, dtype=np.int64)
+    x0 = (image_width - 1) / 2
+    y0 = (image_height - 1) / 2
+
+    for i in range(image_height):
+        for j in range(image_width):
+            x_norm = (j - x0) / (abs(semi_axis_x) if semi_axis_x != 0 else 1e-9)
+            y_norm = (i - y0) / (abs(semi_axis_y) if semi_axis_y != 0 else 1e-9)
+            if x_norm**2 + y_norm**2 <= 1:
+                image[i, j] = shape_color
+    return image
+
+
+def draw_ellipse(data: EllipseInput) -> np.ndarray:
+    semi_axis_x, semi_axis_y = data.semi_axis_x, data.semi_axis_y
+    image_height, image_width = data.image_height, data.image_width
+    shape_color, background_color = data.shape_color, data.background_color
     img = make_rgb_img(image_height, image_width, background_color)
 
     y0 = (image_height - 1) / 2
@@ -159,11 +177,11 @@ def draw_ellipse(data: EllipseInput) -> np.ndarray:
 
     for i in range(image_height):
         for j in range(image_width):
-            y_part = (i - y0) / semi_axis_y
-            x_part = (j - x0) / semi_axis_x
-
-            if y_part**2 + x_part**2 <= 1:
+            x_part = (j - x0) / (semi_axis_x if semi_axis_x != 0 else 1e-9)
+            y_part = (i - y0) / (semi_axis_y if semi_axis_y != 0 else 1e-9)
+            if x_part**2 + y_part**2 <= 1:
                 img[i, j] = shape_color
+
     return img
 
 
