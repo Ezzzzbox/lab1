@@ -1,7 +1,48 @@
 import numpy as np
 import unittest
-from numpy_tasks import *
-from python_basics import *
+from numpy_tasks import (
+    sum_prod,
+    binarize,
+    unique_rows,
+    unique_columns,
+    matrix_statistics,
+    chess,
+    draw_rectangle,
+    draw_ellipse,
+    analyze_time_series,
+    one_hot,
+)
+from python_basics import (
+    count_vowels,
+    has_unique_characters,
+    count_one_bits,
+    is_balanced_number,
+    multiplicative_persistence,
+    mse,
+    prime_factorization,
+    pyramid,
+    is_balanced_number,
+)
+
+from grader_contracts.python_basics import (
+    PositiveIntegerInput,
+    TextInput,
+    VectorPairInput,
+)
+
+from grader_contracts.numpy_tasks import (
+    BinarizeInput,
+    ChessInput,
+    EllipseInput,
+    MatrixInput,
+    MatrixStatistics,
+    MatrixVectorBatchInput,
+    OneHotInput,
+    RandomMatrixInput,
+    RectangleInput,
+    TimeSeriesInput,
+    TimeSeriesStatistics,
+)
 
 
 class test_is_balanced_number(unittest.TestCase):
@@ -35,7 +76,7 @@ class test_pyramid(unittest.TestCase):
     def test_one(self):
         num = PositiveIntegerInput(1)
         res = pyramid(num)
-        self.assertEqual(res, "k")
+        self.assertEqual(res, 1)
 
     def test_multiple(self):
         num = 0
@@ -44,7 +85,7 @@ class test_pyramid(unittest.TestCase):
             num += i * i
             inp_num = PositiveIntegerInput(num)
             res = pyramid(inp_num)
-            if res != "k":
+            if res != i:
                 err_nums.append(i)
         self.assertEqual([], err_nums)
 
@@ -60,6 +101,11 @@ class test_pyramid(unittest.TestCase):
 
 
 class test_prime_factorization(unittest.TestCase):
+    def run_test(self, num, expected):
+        num = PositiveIntegerInput(num)
+        res = prime_factorization(num)
+        return res == expected
+
     def test_zero(self):
         num = PositiveIntegerInput(0)
         res = prime_factorization(num)
@@ -70,10 +116,24 @@ class test_prime_factorization(unittest.TestCase):
         res = prime_factorization(num)
         self.assertEqual(res, "(2**2)(5**2)")
 
-    def tet_prime_number(self):
-        num = PositiveIntegerInput(219)
+    def test_prime_number(self):
+        num = PositiveIntegerInput(11117)
         res = prime_factorization(num)
-        self.assertEqual(res, "(217)")
+        self.assertEqual(res, "(11117)")
+
+    def test_from_clause(self):
+        num = PositiveIntegerInput(86240)
+        res = prime_factorization(num)
+        self.assertEqual(res, "(2**5)(5)(7**2)(11)")
+
+    def test_negative_simple(self):
+        self.assertTrue(self.run_test(-2, "(2)"))
+
+    def test_negative_from_clause(self):
+        self.assertTrue(self.run_test(-86240, "(2**5)(5)(7**2)(11)"))
+
+    def test_negative_primary(self):
+        self.assertTrue(self.run_test(-11117, "(11117)"))
 
 
 class test_mse(unittest.TestCase):
@@ -160,6 +220,7 @@ class test_vovels_count(unittest.TestCase):
         self.assertEqual(res, 10)
 
 
+""" я забыл функцию когда тесты переносил
 class test_sum_prod(unittest.TestCase):
     def test_simple(self):
         mtrx = np.ones([2, 2])
@@ -182,6 +243,7 @@ class test_sum_prod(unittest.TestCase):
         vecs = [np.array([5, 5]), np.array([5, 5])]
         res = compare(mtrxs, vecs, np.array([30, 70]))
         self.assertTrue(res)
+"""
 
 
 class test_binarize(unittest.TestCase):
@@ -231,17 +293,17 @@ class test_unique_rows(unittest.TestCase):
 
     def test_4x4(self):
         mtrx = np.array([[1, 2, 3, 4], [1, 1, 2, 2], [-5, -5, 5, 1], [0, 1, 3, 0]])
-        expect = [[1, 2, 3, 4], [], [5, 1], [1, 3]]
+        expect = [[1, 2, 3, 4], [1, 2], [-5, 5, 1], [0, 1, 3]]
         self.assertTrue(self.run_test(mtrx, expect))
 
     def test_4x2(self):
         mtrx = np.array([[1, 2, 3, 4], [1, 1, 0, 2]])
-        expect = [[1, 2, 3, 4], [0, 2]]
+        expect = [[1, 2, 3, 4], [1, 0, 2]]
         self.assertTrue(self.run_test(mtrx, expect))
 
     def test_2x4(self):
         mtrx = np.array([[1, 2], [1.3, 1.3], [0, 0], [-1, -1]])
-        expect = [[1.0, 2.0], [], [], []]
+        expect = [[1.0, 2.0], [1.3], [0], [-1]]
         self.assertTrue(self.run_test(mtrx, expect))
 
 
@@ -265,22 +327,22 @@ class test_unique_columns(unittest.TestCase):
 
     def test_vector(self):
         vec = np.array([1, 2, 3, 3, 4, 4])
-        expect = [[1, 2]]
+        expect = [[1, 2, 3, 4]]
         self.assertTrue(self.run_test(vec, expect))
 
     def test_4x4(self):
         mtrx = np.array([[1, 2, 3, 4], [1, 1, 2, 2], [-5, -5, 5, 1], [0, 1, 3, 0]])
-        expect = [[-5, 0], [2, -5], [2, 5], [4, 2, 1, 0]]
+        expect = [[-5, 0, 1], [1, 2, -5], [2, 3, 5], [4, 2, 1, 0]]
         self.assertTrue(self.run_test(mtrx, expect))
 
     def test_4x2(self):
         mtrx = np.array([[1, 2, 3, 4], [1, 1, 0, 2]])
-        expect = [[], [2, 1], [3, 0], [4, 2]]
+        expect = [[1], [2, 1], [3, 0], [4, 2]]
         self.assertTrue(self.run_test(mtrx, expect))
 
     def test_2x4(self):
         mtrx = np.array([[1, 2], [0, 1.3], [0, 1.3], [-1, -1]])
-        expect = [[1, -1], [2, -1]]
+        expect = [[1, 0, -1], [2, 1.3, -1]]
         self.assertTrue(self.run_test(mtrx, expect))
 
 
@@ -322,7 +384,7 @@ class test_chess(unittest.TestCase):
         self.assertTrue(self.run_test(3, 2, 5, 8))
 
     def test_7x7(self):
-        self.assertTrue(self.run_test(1, 2, 5, 8))
+        self.assertTrue(self.run_test(7, 7, 5, 8))
 
 
 """

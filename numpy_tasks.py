@@ -169,10 +169,9 @@ def draw_ellipse(data: EllipseInput) -> np.ndarray:
 
 def analyze_time_series(data: TimeSeriesInput) -> TimeSeriesStatistics:
     values, window = data.values, data.window
-    math_expect = sum(values) / len(values)
-    avg_squares = sum([i**2 for i in values]) / len(values)
-    dispersion = avg_squares - math_expect**2
-    square_deviation = dispersion**0.5
+    mean = np.mean(values)
+    variance = np.var(values)
+    std = np.std(values)
     loc_maxs = []
     loc_mins = []
     for i in range(1, len(values) - 1):
@@ -180,13 +179,10 @@ def analyze_time_series(data: TimeSeriesInput) -> TimeSeriesStatistics:
             loc_maxs.append(i)
         if values[i] < values[i - 1] and values[i] < values[i + 1]:
             loc_mins.append(i)
-    slide_avg = []
-    # breakpoint()
-    for i in range(len(values) - window + 1):
-        slide_avg.append(sum(values[i : window + i]) / window)
-    res = TimeSeriesStatistics(
-        math_expect, dispersion, square_deviation, loc_maxs, loc_mins, slide_avg
-    )
+    # np.repeat make a list of size window like a mask to easely count avg
+    weights = np.repeat(1.0, window) / window
+    moving_average = np.convolve(values, weights, mode="valid")
+    res = TimeSeriesStatistics(mean, variance, std, loc_maxs, loc_mins, moving_average)
     return res
 
 
