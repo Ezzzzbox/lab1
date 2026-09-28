@@ -72,8 +72,8 @@ def mse(data: VectorPairInput) -> float:
 def prime_factorization(data: PositiveIntegerInput) -> str:
     number = data.value
     res = ""
-    if number < 0:
-        number = -number
+    if number <= 1:
+        return ""
     for i in range(2, number + 1):
         count = 0
         while number % i == 0:
