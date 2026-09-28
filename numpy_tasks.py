@@ -166,25 +166,6 @@ def draw_ellipse(data: EllipseInput) -> np.ndarray:
     return image
 
 
-def draw_ellipse(data: EllipseInput) -> np.ndarray:
-    semi_axis_x, semi_axis_y = data.semi_axis_x, data.semi_axis_y
-    image_height, image_width = data.image_height, data.image_width
-    shape_color, background_color = data.shape_color, data.background_color
-    img = make_rgb_img(image_height, image_width, background_color)
-
-    y0 = (image_height - 1) / 2
-    x0 = (image_width - 1) / 2
-
-    for i in range(image_height):
-        for j in range(image_width):
-            x_part = (j - x0) / (semi_axis_x if semi_axis_x != 0 else 1e-9)
-            y_part = (i - y0) / (semi_axis_y if semi_axis_y != 0 else 1e-9)
-            if x_part**2 + y_part**2 <= 1:
-                img[i, j] = shape_color
-
-    return img
-
-
 def analyze_time_series(data: TimeSeriesInput) -> TimeSeriesStatistics:
     values, window = data.values, data.window
     mean = np.mean(values)
