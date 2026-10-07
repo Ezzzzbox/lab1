@@ -1,6 +1,7 @@
 """Заготовки задач на базовый Python."""
 
 from typing import Sequence
+from copy import copy
 
 from grader_contracts.python_basics import (
     PositiveIntegerInput,
@@ -72,31 +73,31 @@ def mse(data: VectorPairInput) -> float:
 def prime_factorization(data: PositiveIntegerInput) -> str:
     number = data.value
     if number <= 1:
-        print("")
+        return ""
+
     L = [set() for i in range(number + 1)]
     for i in range(2, number + 1):
         if len(L[i]) == 0:
             for j in range(i, number + 1, i):
                 L[j].add(i)
-
-    M = [dict() for i in range(number + 1)]
+    M = [{} for i in range(number + 1)]
     for i in range(2, number + 1):
         if i in L[i]:
             M[i][i] = 1
         else:
             d = list(L[i])[0]
-            M[i] = M[i // 2]
-            if M[i].count(d) == 0:
+            M[i] = copy(M[i // d])
+            if d not in M[i]:
                 M[i][d] = 1
             else:
                 M[i][d] = M[i][d] + 1
 
     res = ""
-    for key in M[number]:
+    for key in sorted(M[number].keys()):
         if M[number][key] == 1:
-            res = res + "(" + key + ")"
+            res = res + "(" + str(key) + ")"
         else:
-            res = res + "(" + key + "**" + M[number][key] + ")"
+            res = res + "(" + str(key) + "**" + str(M[number][key]) + ")"
     return res
 
 
