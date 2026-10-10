@@ -74,31 +74,24 @@ def prime_factorization(data: PositiveIntegerInput) -> str:
     number = data.value
     if number <= 1:
         return ""
+    factors = {}
+    d = 2
+    while d * d <= number:
+        while number % d == 0:
+            factors[d] = factors.get(d, 0) + 1
+            number //= d
+        d += 1
+    if number > 1:
+        factors[number] = factors.get(number, 0) + 1
 
-    L = [set() for i in range(number + 1)]
-    for i in range(2, number + 1):
-        if len(L[i]) == 0:
-            for j in range(i, number + 1, i):
-                L[j].add(i)
-    M = [{} for i in range(number + 1)]
-    for i in range(2, number + 1):
-        if i in L[i]:
-            M[i][i] = 1
+    result = []
+    for prime in sorted(factors.keys()):
+        power = factors[prime]
+        if power == 1:
+            result.append(f"({prime})")
         else:
-            d = list(L[i])[0]
-            M[i] = copy(M[i // d])
-            if d not in M[i]:
-                M[i][d] = 1
-            else:
-                M[i][d] = M[i][d] + 1
-
-    res = ""
-    for key in sorted(M[number].keys()):
-        if M[number][key] == 1:
-            res = res + "(" + str(key) + ")"
-        else:
-            res = res + "(" + str(key) + "**" + str(M[number][key]) + ")"
-    return res
+            result.append(f"({prime}**{power})")
+    return "".join(result)
 
 
 def pyramid(data: PositiveIntegerInput) -> int | str:
