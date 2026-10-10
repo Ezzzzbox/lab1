@@ -1,8 +1,5 @@
 """Заготовки задач на базовый Python."""
 
-from typing import Sequence
-from copy import copy
-
 from grader_contracts.python_basics import (
     PositiveIntegerInput,
     TextInput,
