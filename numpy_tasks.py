@@ -29,17 +29,19 @@ def sum_prod(data: MatrixVectorBatchInput) -> np.ndarray:
 
 def binarize(data: BinarizeInput) -> np.ndarray:
     matrix, threshold = data.matrix, data.threshold
-    if len(matrix.shape) == 1:
-        return binarize_vector(matrix, threshold)
-    rows = matrix.shape[0]
-    columns = matrix.shape[1]
+    mtrx = matrix.copy()
+    print(matrix is mtrx)
+    if len(mtrx.shape) == 1:
+        return binarize_vector(mtrx, threshold)
+    rows = mtrx.shape[0]
+    columns = mtrx.shape[1]
     for i in range(rows):
         for j in range(columns):
-            if matrix[i, j] > threshold:
-                matrix[i, j] = 1
+            if mtrx[i, j] > threshold:
+                mtrx[i, j] = 1
             else:
-                matrix[i, j] = 0
-    return matrix
+                mtrx[i, j] = 0
+    return mtrx
 
 
 def binarize_vector(vector, threshold) -> np.ndarray:

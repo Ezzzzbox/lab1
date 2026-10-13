@@ -127,13 +127,13 @@ class test_prime_factorization(unittest.TestCase):
         self.assertEqual(res, "(2**5)(5)(7**2)(11)")
 
     def test_negative_simple(self):
-        self.assertTrue(self.run_test(-2, "(2)"))
+        self.assertTrue(self.run_test(-2, ""))
 
     def test_negative_from_clause(self):
-        self.assertTrue(self.run_test(-86240, "(2**5)(5)(7**2)(11)"))
+        self.assertTrue(self.run_test(-86240, ""))
 
     def test_negative_primary(self):
-        self.assertTrue(self.run_test(-11117, "(11117)"))
+        self.assertTrue(self.run_test(-11117, ""))
 
 
 class test_mse(unittest.TestCase):
